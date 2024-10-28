@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useMediaQuery, useTheme } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -7,11 +8,16 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SportsKabaddiIcon from '@mui/icons-material/SportsKabaddi';
 import { useAuth } from '../contexts/AuthContext';
+import MobileNavbar from './MobileNavbar';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  return (
+  return isMobile ? (
+    <MobileNavbar />
+  ) : (
     <AppBar position="static">
       <Toolbar>
         <SportsKabaddiIcon sx={{ mr: 2 }} />

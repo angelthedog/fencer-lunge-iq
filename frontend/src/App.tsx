@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
 import Upload from './pages/Upload';
 import Results from './pages/Results';
 import Dashboard from './pages/Dashboard';
-import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import AuthenticatedHome from './components/AuthenticatedHome';
+import LogoutHandler from './components/LogoutHandler';
 import './App.css';
 
 const theme = createTheme({
@@ -33,8 +33,7 @@ function App() {
             <Navbar />
             <main className="App-main">
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<AuthenticatedHome />} />
                 <Route
                   path="/upload"
                   element={
@@ -61,6 +60,7 @@ function App() {
                 />
               </Routes>
             </main>
+            <LogoutHandler />
           </div>
         </Router>
       </ThemeProvider>

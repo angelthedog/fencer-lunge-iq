@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from bson import ObjectId
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+import os
 
 app = FastAPI(title="FencerLunge API")
 
@@ -41,6 +42,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = "your-secret-key"  # Change this!
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Create uploads directory if it doesn't exist
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.get("/")
 async def root():
@@ -118,3 +123,46 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 @app.get("/users/me")
 async def read_users_me(current_user: dict = Depends(get_current_user)):
     return current_user
+
+@app.post("/upload-video")
+async def upload_video(
+    video: UploadFile = File(...),
+    experience: str = Form(...),
+    notes: str = Form(...),
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        # Create user-specific directory
+        user_upload_dir = os.path.join(UPLOAD_DIR, str(current_user["_id"]))
+        os.makedirs(user_upload_dir, exist_ok=True)
+
+        # Generate unique filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{timestamp}_{video.filename}"
+        filepath = os.path.join(user_upload_dir, filename)
+
+        # Save the video file
+        with open(filepath, "wb") as buffer:
+            content = await video.read()
+            buffer.write(content)
+
+        # Save video metadata to database
+        video_metadata = {
+            "user_id": current_user["_id"],
+            "filename": filename,
+            "original_filename": video.filename,
+            "filepath": filepath,
+            "experience_level": experience,
+            "notes": notes,
+            "upload_date": datetime.utcnow(),
+            "status": "uploaded"  # You can update this status during processing
+        }
+        
+        db.videos.insert_one(video_metadata)
+
+        return {
+            "message": "Video uploaded successfully",
+            "filename": filename
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
