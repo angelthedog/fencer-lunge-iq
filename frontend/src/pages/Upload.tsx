@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -45,13 +45,20 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const Upload = () => {
+const Upload: React.FC = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [experience, setExperience] = useState('');
   const [notes, setNotes] = useState('');
   const [tabValue, setTabValue] = useState(0);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Retrieve the access token from session storage when the component mounts
+    const storedToken = sessionStorage.getItem('accessToken');
+    setAccessToken(storedToken);
+  }, []);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -64,27 +71,36 @@ const Upload = () => {
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || !accessToken) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('video', file);
-    formData.append('experience', experience);
-    formData.append('notes', notes);
 
     try {
+      const formData = new FormData();
+      formData.append('video', file);
+      formData.append('experience', experience);
+      formData.append('notes', notes);
+
       const response = await fetch('http://localhost:8000/upload-video', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          // Don't set Content-Type here, it will be automatically set for FormData
+        },
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Upload failed');
       }
 
+      const result = await response.json();
+      console.log('Upload successful:', result);
       navigate('/results');
     } catch (error) {
       console.error('Error uploading video:', error);
+      // Handle error (e.g., show error message to user)
     } finally {
       setUploading(false);
     }
@@ -157,7 +173,7 @@ const Upload = () => {
                   <Button
                     variant="contained"
                     onClick={handleUpload}
-                    disabled={uploading}
+                    disabled={uploading || !accessToken}
                     sx={{ mt: 2 }}
                   >
                     Upload and Analyze
