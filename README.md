@@ -53,6 +53,14 @@ fencer-lunge/
    uvicorn main:app --reload
    ```
 
+### MongoDB database - use x.g@g SSO
+
+### Repo in angelthedog github
+1. fencer-lunge-iq - this repo for UI and BE
+2. 3d_lunge_iq - python repo to build NN model and train
+3. YoutubeVideooUpload - google SSO to upload fencing video to YT.
+4. FencingLunge - old python repo to analyze lunge in 2D
+
 ## Features
 
 - Video upload and processing
