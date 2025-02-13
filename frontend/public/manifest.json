@@ -1,6 +1,6 @@
 {
-  "short_name": "FencerLunge",
-  "name": "FencerLunge IQ - Fencing Analysis App",
+  "short_name": "Fencer Lunge IQ",
+  "name": "Fencer Lunge IQ",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,21 +10,16 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any maskable"
+      "sizes": "192x192"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "scope": "/",
-  "description": "Analyze and improve your fencing techniques"
+  "theme_color": "#1976d2",
+  "background_color": "#f5f5f5"
 }
